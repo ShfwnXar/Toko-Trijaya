@@ -58,7 +58,8 @@ export async function middleware(req: NextRequest) {
   }
 
   // Get JWT token (lightweight, no DB call)
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET! })
+  const secret = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET || ""
+  const token = await getToken({ req, secret })
 
   if (!token) {
     if (pathname.startsWith("/api/")) {

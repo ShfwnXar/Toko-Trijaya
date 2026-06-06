@@ -54,14 +54,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (status === "loading") {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-muted-foreground">Memuat...</p>
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-2" />
+          <p className="text-muted-foreground text-sm">Memuat...</p>
+        </div>
       </div>
     )
   }
 
   if (!session) {
-    router.push("/login")
-    return null
+    // Don't redirect immediately - give time for session to load
+    // The middleware handles auth redirect server-side
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-2" />
+          <p className="text-muted-foreground text-sm">Memuat...</p>
+        </div>
+      </div>
+    )
   }
 
   const userRole = (session.user as any)?.role || "KASIR"
