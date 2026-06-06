@@ -12,10 +12,13 @@ export function BarcodeScanner({ onBarcodeDetected, autoStart = false }: Barcode
   const [isActive, setIsActive] = useState(autoStart)
   const [error, setError] = useState<string | null>(null)
   const [showHint, setShowHint] = useState(false)
+  const [lastScanned, setLastScanned] = useState<string | null>(null)
   const scannerRef = useRef<HTMLDivElement>(null)
   const html5QrCodeRef = useRef<any>(null)
   const hintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isMountedRef = useRef(true)
+  const lastScanTimeRef = useRef<number>(0)
+  const lastBarcodeRef = useRef<string>("")
 
   const startHintTimer = useCallback(() => {
     if (hintTimerRef.current) clearTimeout(hintTimerRef.current)
@@ -23,6 +26,25 @@ export function BarcodeScanner({ onBarcodeDetected, autoStart = false }: Barcode
     hintTimerRef.current = setTimeout(() => {
       if (isMountedRef.current) setShowHint(true)
     }, 10000)
+  }, [])
+
+  // Play beep sound on successful scan
+  const playBeep = useCallback(() => {
+    try {
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)()
+      const oscillator = audioCtx.createOscillator()
+      const gainNode = audioCtx.createGain()
+      oscillator.connect(gainNode)
+      gainNode.connect(audioCtx.destination)
+      oscillator.type = "square"
+      oscillator.frequency.setValueAtTime(1800, audioCtx.currentTime)
+      gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime)
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15)
+      oscillator.start(audioCtx.currentTime)
+      oscillator.stop(audioCtx.currentTime + 0.15)
+    } catch {
+      // Audio not available, ignore
+    }
   }, [])
 
   const stopScanner = useCallback(async () => {
@@ -95,6 +117,21 @@ export function BarcodeScanner({ onBarcodeDetected, autoStart = false }: Barcode
           aspectRatio: 1.0,
         },
         (decodedText: string) => {
+          const now = Date.now()
+          // Debounce: ignore same barcode within 2 seconds
+          if (decodedText === lastBarcodeRef.current && now - lastScanTimeRef.current < 2000) {
+            return
+          }
+          lastBarcodeRef.current = decodedText
+          lastScanTimeRef.current = now
+          
+          // Play beep sound
+          playBeep()
+          
+          // Show last scanned barcode briefly
+          if (isMountedRef.current) setLastScanned(decodedText)
+          setTimeout(() => { if (isMountedRef.current) setLastScanned(null) }, 2000)
+          
           onBarcodeDetected(decodedText)
           startHintTimer()
         },
@@ -161,7 +198,13 @@ export function BarcodeScanner({ onBarcodeDetected, autoStart = false }: Barcode
             className="w-full rounded-lg overflow-hidden border border-border bg-black min-h-[200px]"
           />
 
-          {showHint && (
+          {lastScanned && (
+            <div className="mt-2 text-center bg-green-50 border border-green-200 rounded-md py-2 px-3 animate-pulse">
+              <p className="text-sm font-medium text-green-700">✓ Terdeteksi: {lastScanned}</p>
+            </div>
+          )}
+
+          {showHint && !lastScanned && (
             <p className="text-sm text-amber-600 mt-2 text-center animate-pulse">
               💡 Tidak terdeteksi. Posisikan ulang barcode atau gunakan pencarian manual.
             </p>
