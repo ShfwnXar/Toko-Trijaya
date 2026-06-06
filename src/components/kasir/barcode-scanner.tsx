@@ -113,7 +113,7 @@ export function BarcodeScanner({ onBarcodeDetected, autoStart = false }: Barcode
         { facingMode: "environment" },
         {
           fps: 15,
-          qrbox: { width: 300, height: 200 },
+          qrbox: undefined, // Scan full frame — better for small barcodes
           aspectRatio: 1.0,
         },
         (decodedText: string) => {
