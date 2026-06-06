@@ -66,7 +66,7 @@ export default function KasirPage() {
       </aside>
 
       {/* Mobile: Bottom Sheet Cart (< 768px) */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-20">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-20" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
         {/* Collapsed bar */}
         <div
           className={`bg-card border-t transition-transform duration-300 ease-in-out ${
@@ -95,7 +95,7 @@ export default function KasirPage() {
           className={`fixed inset-x-0 bottom-0 bg-card border-t shadow-2xl transition-transform duration-300 ease-in-out rounded-t-xl ${
             mobileCartExpanded ? "translate-y-0" : "translate-y-full"
           }`}
-          style={{ height: "70vh" }}
+          style={{ height: "70vh", paddingBottom: "env(safe-area-inset-bottom, 16px)" }}
         >
           {/* Handle bar */}
           <button
