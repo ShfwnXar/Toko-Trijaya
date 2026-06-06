@@ -1,0 +1,181 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 176 63% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 72% 41%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 176 63% 45%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 176 63% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 72% 41%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 176 63% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Touch Target Utilities */
+@layer utilities {
+  .touch-target {
+    @apply min-w-[44px] min-h-[44px];
+  }
+}
+
+/* Ensure interactive elements have proper touch targets on mobile */
+@media (max-width: 767px) {
+  button,
+  a,
+  [role="button"],
+  input[type="checkbox"],
+  input[type="radio"],
+  select {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="date"],
+  input[type="search"],
+  textarea {
+    min-height: 44px;
+  }
+}
+
+/* Thermal Printer Print Layout (80mm) */
+@media print {
+  /* Hide everything except receipt */
+  body * {
+    visibility: hidden;
+  }
+
+  .print-receipt,
+  .print-receipt * {
+    visibility: visible;
+  }
+
+  .print-receipt {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80mm;
+    margin: 0;
+    padding: 4mm;
+    border: none;
+    box-shadow: none;
+    background: white;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 11px;
+    line-height: 1.4;
+    color: #000;
+  }
+
+  /* Hide non-printable elements */
+  .no-print,
+  nav,
+  aside,
+  header,
+  footer,
+  [role="navigation"],
+  [data-sidebar],
+  button {
+    display: none !important;
+  }
+
+  /* Receipt typography */
+  .print-receipt h2,
+  .print-receipt h3 {
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    margin: 0;
+  }
+
+  .print-receipt p {
+    margin: 1px 0;
+  }
+
+  /* Separator as dashed line */
+  .print-receipt [data-orientation="horizontal"] {
+    border-top: 1px dashed #000;
+    margin: 4px 0;
+  }
+
+  /* Store footer */
+  .print-receipt .text-center.text-xs::after {
+    content: "";
+    display: block;
+    margin-top: 8px;
+    border-top: 1px dashed #000;
+  }
+
+  /* Remove page margins */
+  @page {
+    size: 80mm auto;
+    margin: 0;
+  }
+}
