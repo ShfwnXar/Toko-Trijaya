@@ -58,8 +58,24 @@ export async function middleware(req: NextRequest) {
   }
 
   // Get JWT token (lightweight, no DB call)
-  const secret = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET || ""
-  const token = await getToken({ req, secret })
+  const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || ""
+  
+  // Try with default cookie name first, then with secure prefix
+  let token = await getToken({ req, secret })
+  if (!token) {
+    token = await getToken({ 
+      req, 
+      secret,
+      cookieName: "__Secure-authjs.session-token"
+    })
+  }
+  if (!token) {
+    token = await getToken({ 
+      req, 
+      secret,
+      cookieName: "authjs.session-token"
+    })
+  }
 
   if (!token) {
     if (pathname.startsWith("/api/")) {
