@@ -1,12 +1,12 @@
-import { auth } from "@/lib/auth"
 import { NextResponse } from "next/server"
+import { getToken } from "next-auth/jwt"
+import type { NextRequest } from "next/server"
 
 /**
- * Role-route access matrix.
- * Admin has access to all routes (wildcard "*").
- * Kasir has access to kasir pages and transaction/product-related APIs.
- * Gudang has access to stock/supplier pages and related APIs.
+ * Lightweight middleware that only reads JWT token (no Prisma/bcrypt import).
+ * This keeps the Edge Function bundle small (< 1MB Vercel limit).
  */
+
 const roleRoutes: Record<string, string[]> = {
   ADMIN: ["*"],
   KASIR: [
@@ -24,48 +24,31 @@ const roleRoutes: Record<string, string[]> = {
   ],
 }
 
-/**
- * Routes that Kasir can only access with GET method (read-only).
- * For example, Kasir can read products but not create/update/delete them.
- */
 const kasirReadOnlyRoutes = ["/api/products"]
-
-/**
- * Routes that Gudang can access for restock operations.
- * These require special pattern matching (wildcard segments).
- */
 const gudangRestockPattern = /^\/api\/products\/[^/]+\/restock$/
 
-/**
- * Determines the dashboard redirect path for a given role.
- */
 function getDashboardForRole(role: string): string {
   switch (role) {
-    case "ADMIN":
-      return "/admin"
-    case "KASIR":
-      return "/kasir"
-    case "GUDANG":
-      return "/stok"
-    default:
-      return "/login"
+    case "ADMIN": return "/dashboard"
+    case "KASIR": return "/kasir"
+    case "GUDANG": return "/stok"
+    default: return "/login"
   }
 }
 
-export default auth((req) => {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
   const method = req.method
 
-  // Public routes - no auth needed
+  // Public routes
   if (pathname.startsWith("/login") || pathname.startsWith("/api/auth")) {
     return NextResponse.next()
   }
 
-  // Allow static assets and Next.js internals
+  // Allow static assets
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon.ico") ||
-    pathname.startsWith("/images") ||
     pathname.endsWith(".png") ||
     pathname.endsWith(".jpg") ||
     pathname.endsWith(".svg") ||
@@ -74,10 +57,10 @@ export default auth((req) => {
     return NextResponse.next()
   }
 
-  const session = req.auth
+  // Get JWT token (lightweight, no DB call)
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET! })
 
-  // If no session, redirect to login for pages, 401 for API
-  if (!session) {
+  if (!token) {
     if (pathname.startsWith("/api/")) {
       return NextResponse.json(
         { error: "Unauthorized", message: "Autentikasi diperlukan" },
@@ -87,7 +70,7 @@ export default auth((req) => {
     return NextResponse.redirect(new URL("/login", req.url))
   }
 
-  const role = session.user?.role
+  const role = token.role as string
 
   if (!role) {
     if (pathname.startsWith("/api/")) {
@@ -100,19 +83,15 @@ export default auth((req) => {
   }
 
   // Admin has access to everything
-  if (role === "ADMIN") {
-    return NextResponse.next()
-  }
+  if (role === "ADMIN") return NextResponse.next()
 
-  // Check role-based access for KASIR and GUDANG
-  const allowedRoutes = roleRoutes[role] || []
-
-  // Special case: Gudang can access restock endpoint
+  // Gudang special: restock endpoint
   if (role === "GUDANG" && gudangRestockPattern.test(pathname)) {
     return NextResponse.next()
   }
 
-  // Check if the current route is allowed for this role
+  // Check role-based access
+  const allowedRoutes = roleRoutes[role] || []
   const isAllowed = allowedRoutes.some((route) => {
     if (route === "*") return true
     return pathname === route || pathname.startsWith(route + "/") || pathname.startsWith(route + "?")
@@ -125,20 +104,15 @@ export default auth((req) => {
         { status: 403 }
       )
     }
-    // Redirect to appropriate dashboard for their role
-    const redirectPath = getDashboardForRole(role)
-    return NextResponse.redirect(new URL(redirectPath, req.url))
+    return NextResponse.redirect(new URL(getDashboardForRole(role), req.url))
   }
 
-  // For KASIR: enforce read-only on certain API routes
+  // Kasir: read-only on product routes
   if (role === "KASIR") {
     const isReadOnlyRoute = kasirReadOnlyRoutes.some(
-      (route) => pathname === route || pathname.startsWith(route + "/") || pathname.startsWith(route + "?")
+      (route) => pathname === route || pathname.startsWith(route + "/")
     )
-    // Kasir can only use GET on product routes (except /api/transactions which allows POST)
     if (isReadOnlyRoute && method !== "GET") {
-      // Exception: allow barcode lookup and popular products (these are GET-based)
-      // But block POST/PUT/DELETE on /api/products
       return NextResponse.json(
         { error: "Forbidden", message: "Akses ditolak" },
         { status: 403 }
@@ -147,16 +121,8 @@ export default auth((req) => {
   }
 
   return NextResponse.next()
-})
+}
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
-    "/((?!_next/static|_next/image|favicon.ico).*)",
-  ],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 }

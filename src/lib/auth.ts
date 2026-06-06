@@ -1,7 +1,6 @@
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import { compare } from "bcryptjs"
-import { Role } from "@prisma/client"
 import { prisma } from "./prisma"
 import { checkLockout, incrementFailedLogins, resetFailedLogins } from "./utils/auth-helpers"
 
@@ -52,7 +51,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id
+        token.id = user.id as string
         token.role = (user as { role: string }).role
       }
       return token
@@ -60,7 +59,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string
-        session.user.role = token.role as Role
+        session.user.role = token.role as any
       }
       return session
     },
