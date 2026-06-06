@@ -65,7 +65,11 @@ export default auth((req) => {
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon.ico") ||
-    pathname.startsWith("/images")
+    pathname.startsWith("/images") ||
+    pathname.endsWith(".png") ||
+    pathname.endsWith(".jpg") ||
+    pathname.endsWith(".svg") ||
+    pathname.endsWith(".ico")
   ) {
     return NextResponse.next()
   }
