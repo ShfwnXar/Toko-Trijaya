@@ -11,6 +11,7 @@ const roleRoutes: Record<string, string[]> = {
   ADMIN: ["*"],
   KASIR: [
     "/kasir",
+    "/transaksi",
     "/api/transactions",
     "/api/products",
   ],

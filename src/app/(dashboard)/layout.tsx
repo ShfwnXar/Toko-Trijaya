@@ -79,9 +79,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <aside className="hidden md:flex md:flex-col md:w-60 border-r bg-card fixed inset-y-0 left-0 z-30">
         {/* Logo */}
         <div className="p-3 border-b flex items-center gap-2">
-          <img src="/logo.png" alt="Logo" width={36} height={36} className="rounded" />
+          <img src="/logo.png" alt="Logo" width={32} height={32} className="rounded" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
           <div>
-            <p className="text-sm font-bold text-primary leading-tight">Toko Tri Jaya</p>
+            <p className="text-sm font-bold text-primary leading-tight">Toko Grosir Trijaya</p>
             <p className="text-[10px] text-muted-foreground">Point of Sale</p>
           </div>
         </div>
@@ -131,7 +131,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Mobile Header */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-30 bg-card border-b px-4 py-2 flex items-center justify-between">
-        <img src="/logo.png" alt="Toko Grosir Tri Jaya" width={40} height={40} />
+        <div className="flex items-center gap-2">
+          <img src="/logo.png" alt="Logo" width={28} height={28} className="rounded" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
+          <span className="font-bold text-primary text-sm">Toko Grosir Trijaya</span>
+        </div>
         <Button
           variant="ghost"
           size="sm"
@@ -204,7 +207,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       )}
 
       {/* Main Content */}
-      <main className="flex-1 md:ml-60 mt-14 md:mt-0 min-h-screen">
+      <main className="flex-1 md:ml-60 mt-14 md:mt-0 min-h-screen overflow-x-hidden">
         {children}
       </main>
     </div>

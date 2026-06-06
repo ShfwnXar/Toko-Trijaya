@@ -104,11 +104,18 @@ function LoginForm() {
       <div className="flex flex-col items-center mb-8">
         <img
           src="/logo.png"
-          alt="Toko Grosir Tri Jaya"
-          width={180}
-          height={180}
+          alt="Toko Grosir Trijaya"
+          width={150}
+          height={150}
           className="mb-2"
+          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
         />
+        <h1 className="text-2xl font-bold text-primary tracking-tight">
+          TOKO GROSIR TRIJAYA
+        </h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          Solusi Belanja Lengkap &amp; Hemat
+        </p>
       </div>
 
       {/* Session Expired Banner */}
