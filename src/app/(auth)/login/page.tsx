@@ -80,16 +80,7 @@ function LoginForm() {
     }
   }
 
-  // Show loading state while checking session
-  if (status === "loading") {
-    return (
-      <div className="flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    )
-  }
-
-  // Don't render login form if already authenticated (redirect will happen via useEffect)
+  // Only hide form if already authenticated (will redirect via useEffect)
   if (status === "authenticated") {
     return (
       <div className="flex items-center justify-center">
