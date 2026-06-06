@@ -541,12 +541,10 @@ export default function ProdukPage() {
               </div>
               {scannerOpen && (
                 <div className="mt-2">
-                  <BarcodeScanner 
-                    autoStart={true}
-                    onBarcodeDetected={(barcode) => {
-                      setFormData({ ...formData, barcode })
-                    }} 
-                  />
+                  <BarcodeScanner onBarcodeDetected={(barcode) => {
+                    setFormData({ ...formData, barcode })
+                    setScannerOpen(false)
+                  }} />
                 </div>
               )}
               {formErrors.barcode && (
