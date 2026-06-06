@@ -90,9 +90,9 @@ export function BarcodeScanner({ onBarcodeDetected, autoStart = false }: Barcode
       await html5QrCode.start(
         { facingMode: "environment" },
         {
-          fps: 10,
-          qrbox: { width: 250, height: 150 },
-          aspectRatio: 1.5,
+          fps: 15,
+          qrbox: { width: 300, height: 200 },
+          aspectRatio: 1.0,
         },
         (decodedText: string) => {
           onBarcodeDetected(decodedText)
