@@ -203,7 +203,19 @@ function CartContent({
                   >
                     <Minus size={14} />
                   </button>
-                  <span className="w-10 text-center text-sm font-medium">{item.quantity}</span>
+                  <input
+                    type="number"
+                    min={1}
+                    max={9999}
+                    value={item.quantity}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10)
+                      if (!isNaN(val) && val >= 1 && val <= 9999) {
+                        updateQuantity(item.productId, val)
+                      }
+                    }}
+                    className="w-14 text-center text-sm font-medium border rounded-md py-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
                   <button
                     onClick={() => updateQuantity(item.productId, item.quantity + 1)}
                     disabled={item.quantity >= 9999}
