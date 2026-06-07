@@ -111,9 +111,9 @@ Buka [http://localhost:3000](http://localhost:3000)
 
 | Role | Email | Password |
 |------|-------|----------|
-| **Admin** | admin@trijaya.com | admin123 |
-| **Kasir** | kasir@trijaya.com | kasir123 |
-| **Gudang** | gudang@trijaya.com | gudang123 |
+| **Admin** | admin@.com | admin123 |
+| **Kasir** | kasir@.com | kasir123 |
+| **Gudang** | gudang@.com | gudang123 |
 
 ---
 
